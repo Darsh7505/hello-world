@@ -1,0 +1,2322 @@
+Sub Macro_Budget_Report_Regina_Area()
+
+Dim wb As Workbook
+Dim ws As Worksheet
+Dim rng As Range
+Dim Table As ListObject
+Dim ws2 As Worksheet
+Dim wb2 As Workbook
+Dim i As Integer
+Dim z As Integer
+Dim LastRow As Integer
+Dim LastColumn As Integer
+Dim Sum_YTD_Budget As Long
+Dim Sum_YTD_Actual As Long
+Dim Sum_YTD_Variance As Long
+Dim y As Integer
+Dim ListObj As ListObject
+Dim count As Integer
+Dim c As Integer
+Dim Find_Object_Code As String
+Dim Sum_MTD_Budget As Long
+Dim Sum_MTD_Actual As Long
+Dim Sum_MTD_Variance As Long
+Dim Sum_Annual_Budget As Long
+Dim b As Integer
+Dim StartCell As Range
+Dim name As String
+Dim ws8 As Worksheet
+Dim response As Integer
+Dim Other_MTD_Budget As Long
+Dim Other_MTD_Actual As Long
+Dim Other_MTD_Variance As Long
+Dim Other_YTD_Budget As Long
+Dim Other_YTD_Actual As Long
+Dim Other_YTD_Variance As Long
+Dim Other_Annual_Budget As Long
+Dim Match_Value As String
+Dim rngsearch As Range
+Dim StartCell2 As Range
+Dim LastRow2 As Integer
+Dim rng2 As Range
+
+On Error GoTo eh
+
+response = MsgBox("Do you want to run the Budget Report for Regina Area?", vbYesNoCancel + vbQuestion + vbDefaultButton1 + vbApplicationModal, "Alert!")
+    
+If response = 6 Then
+
+name = Application.InputBox("Please Paste/Write the Name of the Regina Area Worksheet in the Field below.", "Write the Regina Area Worksheet Name", "R5509M68AA_REGT300", , , , , 2)
+
+If name = "" Then
+
+Set wb = Workbooks("R5509M68AA_REGT300.csv")
+Set ws = wb.Worksheets("R5509M68AA_REGT300")
+
+Else
+
+Set wb = Workbooks(name & ".csv")
+Set ws = wb.Worksheets(name)
+
+End If
+
+Set wb2 = Workbooks("Transmission Budget Report (Level 8).xlsx")
+Set ws2 = wb2.Worksheets("Regina Area Summary")
+Set ws8 = wb2.Worksheets("Main Page")
+
+count = 0
+
+For Each ListObj In ws.ListObjects
+    count = count + 1
+Next
+
+If count = 0 Then
+  
+    ws.Activate
+    ws.Columns("F:F").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("I:I").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("C:C").Select
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    
+    Application.DisplayAlerts = False
+    ws.Columns("A:A").Select
+    Selection.TextToColumns Destination:=Range("A1"), DataType:=xlDelimited, TextQualifier:=xlNone, ConsecutiveDelimiter:=False, Tab:=False, Semicolon:=False, Comma:=False, Space:=False, Other:=True, OtherChar _
+        :=".", FieldInfo:=Array(1, 1), TrailingMinusNumbers:=True
+    ws.Columns("B:B").Select
+    Selection.TextToColumns Destination:=Range("B1"), DataType:=xlDelimited, TextQualifier:=xlNone, ConsecutiveDelimiter:=True, Tab:=False, Semicolon _
+        :=False, Comma:=False, Space:=True, Other:=False, FieldInfo:=Array(1, 1), TrailingMinusNumbers:=True
+    ws.Columns("C:G").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("O:Z").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Rows("1:7").Select
+    Selection.Delete
+    Application.DisplayAlerts = True
+    
+    ws.UsedRange.Columns.AutoFit
+    
+    Set StartCell = Range("A1")
+    
+    LastRow = ws.Cells(ws.Rows.count, StartCell.Column).End(xlUp).Row
+    LastColumn = ws.Cells(StartCell.Row, ws.Columns.count).End(xlToLeft).Column
+
+    Set rng = ws.Range(StartCell, ws.Cells(LastRow, LastColumn))
+    
+    Set Table = ws.ListObjects.Add(xlSrcRange, rng, , xlYes)
+    Table.name = "Raw_Table"
+    Table.TableStyle = "TableStyleLight15"
+    Table.ShowTableStyleRowStripes = False
+    
+    With ws.Cells.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .ThemeColor = xlThemeColorDark1
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    
+End If
+    
+    z = ws.Cells(Rows.count, 1).End(xlUp).Row
+    y = ws2.Cells(Rows.count, 1).End(xlUp).Row
+    Other_MTD_Budget = 0
+    Other_MTD_Actual = 0
+    Other_MTD_Variance = 0
+    Other_YTD_Budget = 0
+    Other_YTD_Actual = 0
+    Other_YTD_Variance = 0
+    Other_Annual_Budget = 0
+    
+    
+For c = 1 To y
+    
+            Sum_YTD_Budget = 0
+            Sum_YTD_Actual = 0
+            Sum_YTD_Variance = 0
+            Sum_MTD_Budget = 0
+            Sum_MTD_Actual = 0
+            Sum_MTD_Variance = 0
+            Sum_Annual_Budget = 0
+                                
+            Find_Object_Code = ws2.Cells(c, 2).Value
+    
+        If Find_Object_Code <> "" And Find_Object_Code <> "OBJECT CODES (Description)" And Find_Object_Code <> "Other (Remaining Object Codes)" Then
+        
+            For i = 1 To z
+           
+                    If ws.Cells(i, 2).Value = Find_Object_Code Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws.Cells(i, 11).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws.Cells(i, 12).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws.Cells(i, 13).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws.Cells(i, 8).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws.Cells(i, 9).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws.Cells(i, 10).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws.Cells(i, 14).Value
+                            
+                    End If
+                    
+            Next i
+            
+            ws2.Cells(c, 4).Value = Sum_MTD_Budget
+            ws2.Cells(c, 5).Value = Sum_MTD_Actual
+            ws2.Cells(c, 6).Value = Sum_MTD_Variance
+            ws2.Cells(c, 7).Value = Sum_YTD_Budget
+            ws2.Cells(c, 8).Value = Sum_YTD_Actual
+            ws2.Cells(c, 9).Value = Sum_YTD_Variance
+            ws2.Cells(c, 10).Value = Sum_Annual_Budget
+            
+        End If
+        
+Next c
+
+    ws2.Activate
+    Set StartCell2 = Range("B1")
+    LastRow2 = ws2.Cells(ws2.Rows.count, StartCell2.Column).End(xlUp).Row
+    Set rng2 = ws2.Range(StartCell2, ws2.Cells(LastRow2, 2))
+
+For i = 2 To z
+        
+        If ws.Cells(i, 2).Value <> "" Then
+        
+        Match_Value = ws.Cells(i, 2).Value
+        
+        Set rngsearch = rng2.Find(Match_Value)
+        
+            If rngsearch Is Nothing Then
+            
+                Other_MTD_Budget = Other_MTD_Budget + ws.Cells(i, 8).Value
+                Other_MTD_Actual = Other_MTD_Actual + ws.Cells(i, 9).Value
+                Other_MTD_Variance = Other_MTD_Variance + ws.Cells(i, 10).Value
+                Other_YTD_Budget = Other_YTD_Budget + ws.Cells(i, 11).Value
+                Other_YTD_Actual = Other_YTD_Actual + ws.Cells(i, 12).Value
+                Other_YTD_Variance = Other_YTD_Variance + ws.Cells(i, 13).Value
+                Other_Annual_Budget = Other_Annual_Budget + ws.Cells(i, 14).Value
+    
+            End If
+        
+        End If
+                 
+Next
+
+
+For c = 1 To y
+
+            If ws2.Cells(c, 2).Value = "Other (Remaining Object Codes)" Then
+            
+            ws2.Cells(c, 4).Value = Other_MTD_Budget
+            ws2.Cells(c, 5).Value = Other_MTD_Actual
+            ws2.Cells(c, 6).Value = Other_MTD_Variance
+            ws2.Cells(c, 7).Value = Other_YTD_Budget
+            ws2.Cells(c, 8).Value = Other_YTD_Actual
+            ws2.Cells(c, 9).Value = Other_YTD_Variance
+            ws2.Cells(c, 10).Value = Other_Annual_Budget
+            
+            End If
+            
+Next c
+
+'For c = 1 To y
+'
+'        If ws2.Cells(c, 1).Value = "Grand Total" Then
+'
+'            For i = 15 To z
+'
+'                If ws.Cells(i, 1).Value = "00001  TransGas Limited" And ws.Cells(i, 9).Value <> "" Then
+'
+'                ws2.Cells(c, 4).Value = ws.Cells(i, 8).Value
+'                ws2.Cells(c, 5).Value = ws.Cells(i, 9).Value
+'                ws2.Cells(c, 6).Value = ws.Cells(i, 10).Value
+'                ws2.Cells(c, 7).Value = ws.Cells(i, 11).Value
+'                ws2.Cells(c, 8).Value = ws.Cells(i, 12).Value
+'               ws2.Cells(c, 9).Value = ws.Cells(i, 13).Value
+'                ws2.Cells(c, 10).Value = ws.Cells(i, 14).Value
+'
+'                End If
+'
+'            Next i
+'
+'        End If
+'
+'Next c
+
+    For b = 6 To y
+  
+        If ws2.Cells(b, 7).Value = 0 And ws2.Cells(b, 8).Value <> 0 Then
+        ws2.Cells(b, 7).Value = 0.1
+        End If
+        
+   Next
+   
+        Application.DisplayAlerts = False
+
+        If WorkbookIsOpen(name & ".csv") Then
+        Workbooks(name & ".csv").Close False
+        End If
+        
+        ws2.Activate
+        ws2.Cells(5, 1).Select
+        ws8.Activate
+        ws8.Cells(1, 1).Select
+        wb2.Save
+        
+        Application.DisplayAlerts = True
+        
+        Call MsgBox("Running the Budget Report for Regina Area has been completed!", 64, "Done!")
+        
+ElseIf response = 7 Or response = 2 Then
+   
+   Call MsgBox("Running the Budget Report for Regina Area has not been completed.", vbCritical, "Alert!")
+   
+   Exit Sub
+
+End If
+   
+Done:
+      
+   Exit Sub
+   
+eh:
+   
+   MsgBox "Error found: " & Err.Description
+    
+End Sub
+
+Sub Budget_Report_North_Area()
+
+Dim wb As Workbook
+Dim ws As Worksheet
+Dim rng As Range
+Dim Table As ListObject
+Dim ws2 As Worksheet
+Dim wb2 As Workbook
+Dim i As Integer
+Dim z As Integer
+Dim LastRow As Integer
+Dim LastColumn As Integer
+Dim Sum_YTD_Budget As Long
+Dim Sum_YTD_Actual As Long
+Dim Sum_YTD_Variance As Long
+Dim y As Integer
+Dim ListObj As ListObject
+Dim count As Integer
+Dim c As Integer
+Dim Find_Object_Code As String
+Dim Sum_MTD_Budget As Long
+Dim Sum_MTD_Actual As Long
+Dim Sum_MTD_Variance As Long
+Dim Sum_Annual_Budget As Long
+Dim b As Integer
+Dim StartCell As Range
+Dim name As String
+Dim ws8 As Worksheet
+Dim response As Integer
+Dim Other_MTD_Budget As Long
+Dim Other_MTD_Actual As Long
+Dim Other_MTD_Variance As Long
+Dim Other_YTD_Budget As Long
+Dim Other_YTD_Actual As Long
+Dim Other_YTD_Variance As Long
+Dim Other_Annual_Budget As Long
+Dim Match_Value As String
+Dim rngsearch As Range
+Dim StartCell2 As Range
+Dim LastRow2 As Integer
+Dim rng2 As Range
+
+On Error GoTo eh
+
+response = MsgBox("Do you want to run the Budget Report for North Area?", vbYesNoCancel + vbQuestion + vbDefaultButton1 + vbApplicationModal, "Alert!")
+    
+If response = 6 Then
+
+name = Application.InputBox("Please Paste/Write the Name of the North Area Worksheet in the Field below.", "Write the North Area Worksheet Name", "R5509M68AA_NORT300", , , , , 2)
+
+If name = "" Then
+
+Set wb = Workbooks("R5509M68AA_NORT300.csv")
+Set ws = wb.Worksheets("R5509M68AA_NORT300")
+
+Else
+
+Set wb = Workbooks(name & ".csv")
+Set ws = wb.Worksheets(name)
+
+End If
+
+Set wb2 = Workbooks("Transmission Budget Report (Level 8).xlsx")
+Set ws2 = wb2.Worksheets("North Area Summary")
+Set ws8 = wb2.Worksheets("Main Page")
+
+count = 0
+
+For Each ListObj In ws.ListObjects
+    count = count + 1
+Next
+
+If count = 0 Then
+  
+    ws.Activate
+    ws.Columns("F:F").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("I:I").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("C:C").Select
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    
+    Application.DisplayAlerts = False
+    ws.Columns("A:A").Select
+    Selection.TextToColumns Destination:=Range("A1"), DataType:=xlDelimited, TextQualifier:=xlNone, ConsecutiveDelimiter:=False, Tab:=False, Semicolon:=False, Comma:=False, Space:=False, Other:=True, OtherChar _
+        :=".", FieldInfo:=Array(1, 1), TrailingMinusNumbers:=True
+    ws.Columns("B:B").Select
+    Selection.TextToColumns Destination:=Range("B1"), DataType:=xlDelimited, TextQualifier:=xlNone, ConsecutiveDelimiter:=True, Tab:=False, Semicolon _
+        :=False, Comma:=False, Space:=True, Other:=False, FieldInfo:=Array(1, 1), TrailingMinusNumbers:=True
+    ws.Columns("C:G").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("O:Z").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Rows("1:7").Select
+    Selection.Delete
+    Application.DisplayAlerts = True
+    
+    ws.UsedRange.Columns.AutoFit
+    
+    Set StartCell = Range("A1")
+    
+    LastRow = ws.Cells(ws.Rows.count, StartCell.Column).End(xlUp).Row
+    LastColumn = ws.Cells(StartCell.Row, ws.Columns.count).End(xlToLeft).Column
+
+    Set rng = ws.Range(StartCell, ws.Cells(LastRow, LastColumn))
+    
+    Set Table = ws.ListObjects.Add(xlSrcRange, rng, , xlYes)
+    Table.name = "Raw_Table"
+    Table.TableStyle = "TableStyleLight15"
+    Table.ShowTableStyleRowStripes = False
+    
+    With ws.Cells.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .ThemeColor = xlThemeColorDark1
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    
+End If
+    
+    z = ws.Cells(Rows.count, 1).End(xlUp).Row
+    y = ws2.Cells(Rows.count, 1).End(xlUp).Row
+    Other_MTD_Budget = 0
+    Other_MTD_Actual = 0
+    Other_MTD_Variance = 0
+    Other_YTD_Budget = 0
+    Other_YTD_Actual = 0
+    Other_YTD_Variance = 0
+    Other_Annual_Budget = 0
+    
+    
+For c = 1 To y
+    
+            Sum_YTD_Budget = 0
+            Sum_YTD_Actual = 0
+            Sum_YTD_Variance = 0
+            Sum_MTD_Budget = 0
+            Sum_MTD_Actual = 0
+            Sum_MTD_Variance = 0
+            Sum_Annual_Budget = 0
+                                
+            Find_Object_Code = ws2.Cells(c, 2).Value
+    
+        If Find_Object_Code <> "" And Find_Object_Code <> "OBJECT CODES (Description)" And Find_Object_Code <> "Other (Remaining Object Codes)" Then
+        
+            For i = 1 To z
+           
+                    If ws.Cells(i, 2).Value = Find_Object_Code Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws.Cells(i, 11).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws.Cells(i, 12).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws.Cells(i, 13).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws.Cells(i, 8).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws.Cells(i, 9).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws.Cells(i, 10).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws.Cells(i, 14).Value
+                            
+                    End If
+                    
+            Next i
+            
+            ws2.Cells(c, 4).Value = Sum_MTD_Budget
+            ws2.Cells(c, 5).Value = Sum_MTD_Actual
+            ws2.Cells(c, 6).Value = Sum_MTD_Variance
+            ws2.Cells(c, 7).Value = Sum_YTD_Budget
+            ws2.Cells(c, 8).Value = Sum_YTD_Actual
+            ws2.Cells(c, 9).Value = Sum_YTD_Variance
+            ws2.Cells(c, 10).Value = Sum_Annual_Budget
+            
+        End If
+        
+Next c
+
+    ws2.Activate
+    Set StartCell2 = Range("B1")
+    LastRow2 = ws2.Cells(ws2.Rows.count, StartCell2.Column).End(xlUp).Row
+    Set rng2 = ws2.Range(StartCell2, ws2.Cells(LastRow2, 2))
+
+For i = 2 To z
+        
+        If ws.Cells(i, 2).Value <> "" Then
+        
+        Match_Value = ws.Cells(i, 2).Value
+        
+        Set rngsearch = rng2.Find(Match_Value)
+        
+            If rngsearch Is Nothing Then
+            
+                Other_MTD_Budget = Other_MTD_Budget + ws.Cells(i, 8).Value
+                Other_MTD_Actual = Other_MTD_Actual + ws.Cells(i, 9).Value
+                Other_MTD_Variance = Other_MTD_Variance + ws.Cells(i, 10).Value
+                Other_YTD_Budget = Other_YTD_Budget + ws.Cells(i, 11).Value
+                Other_YTD_Actual = Other_YTD_Actual + ws.Cells(i, 12).Value
+                Other_YTD_Variance = Other_YTD_Variance + ws.Cells(i, 13).Value
+                Other_Annual_Budget = Other_Annual_Budget + ws.Cells(i, 14).Value
+    
+            End If
+        
+        End If
+                 
+Next
+
+
+For c = 1 To y
+
+            If ws2.Cells(c, 2).Value = "Other (Remaining Object Codes)" Then
+            
+            ws2.Cells(c, 4).Value = Other_MTD_Budget
+            ws2.Cells(c, 5).Value = Other_MTD_Actual
+            ws2.Cells(c, 6).Value = Other_MTD_Variance
+            ws2.Cells(c, 7).Value = Other_YTD_Budget
+            ws2.Cells(c, 8).Value = Other_YTD_Actual
+            ws2.Cells(c, 9).Value = Other_YTD_Variance
+            ws2.Cells(c, 10).Value = Other_Annual_Budget
+            
+            End If
+            
+Next c
+
+'For c = 1 To y
+'
+'        If ws2.Cells(c, 1).Value = "Grand Total" Then
+'
+'            For i = 15 To z
+'
+'                If ws.Cells(i, 1).Value = "00001  TransGas Limited" And ws.Cells(i, 9).Value <> "" Then
+'
+'                ws2.Cells(c, 4).Value = ws.Cells(i, 8).Value
+'                ws2.Cells(c, 5).Value = ws.Cells(i, 9).Value
+'                ws2.Cells(c, 6).Value = ws.Cells(i, 10).Value
+'                ws2.Cells(c, 7).Value = ws.Cells(i, 11).Value
+'                ws2.Cells(c, 8).Value = ws.Cells(i, 12).Value
+'               ws2.Cells(c, 9).Value = ws.Cells(i, 13).Value
+'                ws2.Cells(c, 10).Value = ws.Cells(i, 14).Value
+'
+'                End If
+'
+'            Next i
+'
+'        End If
+'
+'Next c
+
+    For b = 6 To y
+  
+        If ws2.Cells(b, 7).Value = 0 And ws2.Cells(b, 8).Value <> 0 Then
+        ws2.Cells(b, 7).Value = 0.1
+        End If
+        
+   Next
+   
+        Application.DisplayAlerts = False
+
+        If WorkbookIsOpen(name & ".csv") Then
+        Workbooks(name & ".csv").Close False
+        End If
+        
+        ws2.Activate
+        ws2.Cells(5, 1).Select
+        ws8.Activate
+        ws8.Cells(1, 1).Select
+        wb2.Save
+        
+        Application.DisplayAlerts = True
+   
+        Call MsgBox("Running the Budget Report for North Area has been completed!", 64, "Done!")
+        
+ElseIf response = 7 Or response = 2 Then
+   
+   Call MsgBox("Running the Budget Report for North Area has not been completed.", vbCritical, "Alert!")
+   
+   Exit Sub
+
+End If
+  
+Done:
+      
+   Exit Sub
+   
+eh:
+   
+   MsgBox "Error found: " & Err.Description
+
+End Sub
+
+Sub Budget_Report_SouthWest_Area()
+
+Dim wb As Workbook
+Dim ws As Worksheet
+Dim rng As Range
+Dim Table As ListObject
+Dim ws2 As Worksheet
+Dim wb2 As Workbook
+Dim i As Integer
+Dim z As Integer
+Dim LastRow As Integer
+Dim LastColumn As Integer
+Dim Sum_YTD_Budget As Long
+Dim Sum_YTD_Actual As Long
+Dim Sum_YTD_Variance As Long
+Dim y As Integer
+Dim ListObj As ListObject
+Dim count As Integer
+Dim c As Integer
+Dim Find_Object_Code As String
+Dim Sum_MTD_Budget As Long
+Dim Sum_MTD_Actual As Long
+Dim Sum_MTD_Variance As Long
+Dim Sum_Annual_Budget As Long
+Dim b As Integer
+Dim StartCell As Range
+Dim name As String
+Dim ws8 As Worksheet
+Dim response As Integer
+Dim Other_MTD_Budget As Long
+Dim Other_MTD_Actual As Long
+Dim Other_MTD_Variance As Long
+Dim Other_YTD_Budget As Long
+Dim Other_YTD_Actual As Long
+Dim Other_YTD_Variance As Long
+Dim Other_Annual_Budget As Long
+Dim Match_Value As String
+Dim rngsearch As Range
+Dim StartCell2 As Range
+Dim LastRow2 As Integer
+Dim rng2 As Range
+
+On Error GoTo eh
+
+response = MsgBox("Do you want to run the Budget Report for SouthWest Area?", vbYesNoCancel + vbQuestion + vbDefaultButton1 + vbApplicationModal, "Alert!")
+    
+If response = 6 Then
+
+name = Application.InputBox("Please Paste/Write the Name of the SouthWest Area Worksheet in the Field below.", "Write the SouthWest Area Worksheet Name", "R5509M68AA_SWAT300", , , , , 2)
+
+If name = "" Then
+
+Set wb = Workbooks("R5509M68AA_SWAT300.csv")
+Set ws = wb.Worksheets("R5509M68AA_SWAT300")
+
+Else
+
+Set wb = Workbooks(name & ".csv")
+Set ws = wb.Worksheets(name)
+
+End If
+
+Set wb2 = Workbooks("Transmission Budget Report (Level 8).xlsx")
+Set ws2 = wb2.Worksheets("SouthWest Area Summary")
+Set ws8 = wb2.Worksheets("Main Page")
+
+count = 0
+
+For Each ListObj In ws.ListObjects
+    count = count + 1
+Next
+
+If count = 0 Then
+  
+    ws.Activate
+    ws.Columns("F:F").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("I:I").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("C:C").Select
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    
+    Application.DisplayAlerts = False
+    ws.Columns("A:A").Select
+    Selection.TextToColumns Destination:=Range("A1"), DataType:=xlDelimited, TextQualifier:=xlNone, ConsecutiveDelimiter:=False, Tab:=False, Semicolon:=False, Comma:=False, Space:=False, Other:=True, OtherChar _
+        :=".", FieldInfo:=Array(1, 1), TrailingMinusNumbers:=True
+    ws.Columns("B:B").Select
+    Selection.TextToColumns Destination:=Range("B1"), DataType:=xlDelimited, TextQualifier:=xlNone, ConsecutiveDelimiter:=True, Tab:=False, Semicolon _
+        :=False, Comma:=False, Space:=True, Other:=False, FieldInfo:=Array(1, 1), TrailingMinusNumbers:=True
+    ws.Columns("C:G").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("O:Z").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Rows("1:7").Select
+    Selection.Delete
+    Application.DisplayAlerts = True
+    
+    ws.UsedRange.Columns.AutoFit
+    
+    Set StartCell = Range("A1")
+    
+    LastRow = ws.Cells(ws.Rows.count, StartCell.Column).End(xlUp).Row
+    LastColumn = ws.Cells(StartCell.Row, ws.Columns.count).End(xlToLeft).Column
+
+    Set rng = ws.Range(StartCell, ws.Cells(LastRow, LastColumn))
+    
+    Set Table = ws.ListObjects.Add(xlSrcRange, rng, , xlYes)
+    Table.name = "Raw_Table"
+    Table.TableStyle = "TableStyleLight15"
+    Table.ShowTableStyleRowStripes = False
+    
+    With ws.Cells.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .ThemeColor = xlThemeColorDark1
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    
+End If
+    
+    z = ws.Cells(Rows.count, 1).End(xlUp).Row
+    y = ws2.Cells(Rows.count, 1).End(xlUp).Row
+    Other_MTD_Budget = 0
+    Other_MTD_Actual = 0
+    Other_MTD_Variance = 0
+    Other_YTD_Budget = 0
+    Other_YTD_Actual = 0
+    Other_YTD_Variance = 0
+    Other_Annual_Budget = 0
+    
+    
+For c = 1 To y
+    
+            Sum_YTD_Budget = 0
+            Sum_YTD_Actual = 0
+            Sum_YTD_Variance = 0
+            Sum_MTD_Budget = 0
+            Sum_MTD_Actual = 0
+            Sum_MTD_Variance = 0
+            Sum_Annual_Budget = 0
+                                
+            Find_Object_Code = ws2.Cells(c, 2).Value
+    
+        If Find_Object_Code <> "" And Find_Object_Code <> "OBJECT CODES (Description)" And Find_Object_Code <> "Other (Remaining Object Codes)" Then
+        
+            For i = 1 To z
+           
+                    If ws.Cells(i, 2).Value = Find_Object_Code Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws.Cells(i, 11).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws.Cells(i, 12).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws.Cells(i, 13).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws.Cells(i, 8).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws.Cells(i, 9).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws.Cells(i, 10).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws.Cells(i, 14).Value
+                            
+                    End If
+                    
+            Next i
+            
+            ws2.Cells(c, 4).Value = Sum_MTD_Budget
+            ws2.Cells(c, 5).Value = Sum_MTD_Actual
+            ws2.Cells(c, 6).Value = Sum_MTD_Variance
+            ws2.Cells(c, 7).Value = Sum_YTD_Budget
+            ws2.Cells(c, 8).Value = Sum_YTD_Actual
+            ws2.Cells(c, 9).Value = Sum_YTD_Variance
+            ws2.Cells(c, 10).Value = Sum_Annual_Budget
+            
+        End If
+        
+Next c
+
+    ws2.Activate
+    Set StartCell2 = Range("B1")
+    LastRow2 = ws2.Cells(ws2.Rows.count, StartCell2.Column).End(xlUp).Row
+    Set rng2 = ws2.Range(StartCell2, ws2.Cells(LastRow2, 2))
+
+For i = 2 To z
+        
+        If ws.Cells(i, 2).Value <> "" Then
+        
+        Match_Value = ws.Cells(i, 2).Value
+        
+        Set rngsearch = rng2.Find(Match_Value)
+        
+            If rngsearch Is Nothing Then
+            
+                Other_MTD_Budget = Other_MTD_Budget + ws.Cells(i, 8).Value
+                Other_MTD_Actual = Other_MTD_Actual + ws.Cells(i, 9).Value
+                Other_MTD_Variance = Other_MTD_Variance + ws.Cells(i, 10).Value
+                Other_YTD_Budget = Other_YTD_Budget + ws.Cells(i, 11).Value
+                Other_YTD_Actual = Other_YTD_Actual + ws.Cells(i, 12).Value
+                Other_YTD_Variance = Other_YTD_Variance + ws.Cells(i, 13).Value
+                Other_Annual_Budget = Other_Annual_Budget + ws.Cells(i, 14).Value
+    
+            End If
+        
+        End If
+                 
+Next
+
+
+For c = 1 To y
+
+            If ws2.Cells(c, 2).Value = "Other (Remaining Object Codes)" Then
+            
+            ws2.Cells(c, 4).Value = Other_MTD_Budget
+            ws2.Cells(c, 5).Value = Other_MTD_Actual
+            ws2.Cells(c, 6).Value = Other_MTD_Variance
+            ws2.Cells(c, 7).Value = Other_YTD_Budget
+            ws2.Cells(c, 8).Value = Other_YTD_Actual
+            ws2.Cells(c, 9).Value = Other_YTD_Variance
+            ws2.Cells(c, 10).Value = Other_Annual_Budget
+            
+            End If
+            
+Next c
+
+'For c = 1 To y
+'
+'        If ws2.Cells(c, 1).Value = "Grand Total" Then
+'
+'            For i = 15 To z
+'
+'                If ws.Cells(i, 1).Value = "00001  TransGas Limited" And ws.Cells(i, 9).Value <> "" Then
+'
+'                ws2.Cells(c, 4).Value = ws.Cells(i, 8).Value
+'                ws2.Cells(c, 5).Value = ws.Cells(i, 9).Value
+'                ws2.Cells(c, 6).Value = ws.Cells(i, 10).Value
+'                ws2.Cells(c, 7).Value = ws.Cells(i, 11).Value
+'                ws2.Cells(c, 8).Value = ws.Cells(i, 12).Value
+'               ws2.Cells(c, 9).Value = ws.Cells(i, 13).Value
+'                ws2.Cells(c, 10).Value = ws.Cells(i, 14).Value
+'
+'                End If
+'
+'            Next i
+'
+'        End If
+'
+'Next c
+
+    For b = 6 To y
+  
+        If ws2.Cells(b, 7).Value = 0 And ws2.Cells(b, 8).Value <> 0 Then
+        ws2.Cells(b, 7).Value = 0.1
+        End If
+        
+   Next
+   
+        Application.DisplayAlerts = False
+
+        If WorkbookIsOpen(name & ".csv") Then
+        Workbooks(name & ".csv").Close False
+        End If
+        
+        ws2.Activate
+        ws2.Cells(5, 1).Select
+        ws8.Activate
+        ws8.Cells(1, 1).Select
+        wb2.Save
+        
+        Application.DisplayAlerts = True
+  
+        Call MsgBox("Running the Budget Report for SouthWest Area has been completed!", 64, "Done!")
+        
+ElseIf response = 7 Or response = 2 Then
+   
+   Call MsgBox("Running the Budget Report for SouthWest Area has not been completed.", vbCritical, "Alert!")
+   
+   Exit Sub
+
+End If
+  
+Done:
+      
+   Exit Sub
+   
+eh:
+   
+   MsgBox "Error found: " & Err.Description
+
+End Sub
+
+Sub Budget_Report_SouthEast_Area()
+
+Dim wb As Workbook
+Dim ws As Worksheet
+Dim rng As Range
+Dim Table As ListObject
+Dim ws2 As Worksheet
+Dim wb2 As Workbook
+Dim i As Integer
+Dim z As Integer
+Dim LastRow As Integer
+Dim LastColumn As Integer
+Dim Sum_YTD_Budget As Long
+Dim Sum_YTD_Actual As Long
+Dim Sum_YTD_Variance As Long
+Dim y As Integer
+Dim ListObj As ListObject
+Dim count As Integer
+Dim c As Integer
+Dim Find_Object_Code As String
+Dim Sum_MTD_Budget As Long
+Dim Sum_MTD_Actual As Long
+Dim Sum_MTD_Variance As Long
+Dim Sum_Annual_Budget As Long
+Dim b As Integer
+Dim StartCell As Range
+Dim name As String
+Dim ws8 As Worksheet
+Dim response As Integer
+Dim Other_MTD_Budget As Long
+Dim Other_MTD_Actual As Long
+Dim Other_MTD_Variance As Long
+Dim Other_YTD_Budget As Long
+Dim Other_YTD_Actual As Long
+Dim Other_YTD_Variance As Long
+Dim Other_Annual_Budget As Long
+Dim Match_Value As String
+Dim rngsearch As Range
+Dim StartCell2 As Range
+Dim LastRow2 As Integer
+Dim rng2 As Range
+
+On Error GoTo eh
+
+response = MsgBox("Do you want to run the Budget Report for SouthEast Area?", vbYesNoCancel + vbQuestion + vbDefaultButton1 + vbApplicationModal, "Alert!")
+    
+If response = 6 Then
+
+name = Application.InputBox("Please Paste/Write the Name of the SouthEast Area Worksheet in the Field below.", "Write the SouthEast Area Worksheet Name", "R5509M68AA_SEAT300", , , , , 2)
+
+If name = "" Then
+
+Set wb = Workbooks("R5509M68AA_SEAT300.csv")
+Set ws = wb.Worksheets("R5509M68AA_SEAT300")
+
+Else
+
+Set wb = Workbooks(name & ".csv")
+Set ws = wb.Worksheets(name)
+
+End If
+
+Set wb2 = Workbooks("Transmission Budget Report (Level 8).xlsx")
+Set ws2 = wb2.Worksheets("SouthEast Area Summary")
+Set ws8 = wb2.Worksheets("Main Page")
+
+count = 0
+
+For Each ListObj In ws.ListObjects
+    count = count + 1
+Next
+
+If count = 0 Then
+  
+    ws.Activate
+    ws.Columns("F:F").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("I:I").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("C:C").Select
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    
+    Application.DisplayAlerts = False
+    ws.Columns("A:A").Select
+    Selection.TextToColumns Destination:=Range("A1"), DataType:=xlDelimited, TextQualifier:=xlNone, ConsecutiveDelimiter:=False, Tab:=False, Semicolon:=False, Comma:=False, Space:=False, Other:=True, OtherChar _
+        :=".", FieldInfo:=Array(1, 1), TrailingMinusNumbers:=True
+    ws.Columns("B:B").Select
+    Selection.TextToColumns Destination:=Range("B1"), DataType:=xlDelimited, TextQualifier:=xlNone, ConsecutiveDelimiter:=True, Tab:=False, Semicolon _
+        :=False, Comma:=False, Space:=True, Other:=False, FieldInfo:=Array(1, 1), TrailingMinusNumbers:=True
+    ws.Columns("C:G").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("O:Z").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Rows("1:7").Select
+    Selection.Delete
+    Application.DisplayAlerts = True
+    
+    ws.UsedRange.Columns.AutoFit
+    
+    Set StartCell = Range("A1")
+    
+    LastRow = ws.Cells(ws.Rows.count, StartCell.Column).End(xlUp).Row
+    LastColumn = ws.Cells(StartCell.Row, ws.Columns.count).End(xlToLeft).Column
+
+    Set rng = ws.Range(StartCell, ws.Cells(LastRow, LastColumn))
+    
+    Set Table = ws.ListObjects.Add(xlSrcRange, rng, , xlYes)
+    Table.name = "Raw_Table"
+    Table.TableStyle = "TableStyleLight15"
+    Table.ShowTableStyleRowStripes = False
+    
+    With ws.Cells.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .ThemeColor = xlThemeColorDark1
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    
+End If
+    
+    z = ws.Cells(Rows.count, 1).End(xlUp).Row
+    y = ws2.Cells(Rows.count, 1).End(xlUp).Row
+    Other_MTD_Budget = 0
+    Other_MTD_Actual = 0
+    Other_MTD_Variance = 0
+    Other_YTD_Budget = 0
+    Other_YTD_Actual = 0
+    Other_YTD_Variance = 0
+    Other_Annual_Budget = 0
+    
+    
+For c = 1 To y
+    
+            Sum_YTD_Budget = 0
+            Sum_YTD_Actual = 0
+            Sum_YTD_Variance = 0
+            Sum_MTD_Budget = 0
+            Sum_MTD_Actual = 0
+            Sum_MTD_Variance = 0
+            Sum_Annual_Budget = 0
+                                
+            Find_Object_Code = ws2.Cells(c, 2).Value
+    
+        If Find_Object_Code <> "" And Find_Object_Code <> "OBJECT CODES (Description)" And Find_Object_Code <> "Other (Remaining Object Codes)" Then
+        
+            For i = 1 To z
+           
+                    If ws.Cells(i, 2).Value = Find_Object_Code Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws.Cells(i, 11).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws.Cells(i, 12).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws.Cells(i, 13).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws.Cells(i, 8).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws.Cells(i, 9).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws.Cells(i, 10).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws.Cells(i, 14).Value
+                            
+                    End If
+                    
+            Next i
+            
+            ws2.Cells(c, 4).Value = Sum_MTD_Budget
+            ws2.Cells(c, 5).Value = Sum_MTD_Actual
+            ws2.Cells(c, 6).Value = Sum_MTD_Variance
+            ws2.Cells(c, 7).Value = Sum_YTD_Budget
+            ws2.Cells(c, 8).Value = Sum_YTD_Actual
+            ws2.Cells(c, 9).Value = Sum_YTD_Variance
+            ws2.Cells(c, 10).Value = Sum_Annual_Budget
+            
+        End If
+        
+Next c
+
+    ws2.Activate
+    Set StartCell2 = Range("B1")
+    LastRow2 = ws2.Cells(ws2.Rows.count, StartCell2.Column).End(xlUp).Row
+    Set rng2 = ws2.Range(StartCell2, ws2.Cells(LastRow2, 2))
+
+For i = 2 To z
+        
+        If ws.Cells(i, 2).Value <> "" Then
+        
+        Match_Value = ws.Cells(i, 2).Value
+        
+        Set rngsearch = rng2.Find(Match_Value)
+        
+            If rngsearch Is Nothing Then
+            
+                Other_MTD_Budget = Other_MTD_Budget + ws.Cells(i, 8).Value
+                Other_MTD_Actual = Other_MTD_Actual + ws.Cells(i, 9).Value
+                Other_MTD_Variance = Other_MTD_Variance + ws.Cells(i, 10).Value
+                Other_YTD_Budget = Other_YTD_Budget + ws.Cells(i, 11).Value
+                Other_YTD_Actual = Other_YTD_Actual + ws.Cells(i, 12).Value
+                Other_YTD_Variance = Other_YTD_Variance + ws.Cells(i, 13).Value
+                Other_Annual_Budget = Other_Annual_Budget + ws.Cells(i, 14).Value
+    
+            End If
+        
+        End If
+                 
+Next
+
+
+For c = 1 To y
+
+            If ws2.Cells(c, 2).Value = "Other (Remaining Object Codes)" Then
+            
+            ws2.Cells(c, 4).Value = Other_MTD_Budget
+            ws2.Cells(c, 5).Value = Other_MTD_Actual
+            ws2.Cells(c, 6).Value = Other_MTD_Variance
+            ws2.Cells(c, 7).Value = Other_YTD_Budget
+            ws2.Cells(c, 8).Value = Other_YTD_Actual
+            ws2.Cells(c, 9).Value = Other_YTD_Variance
+            ws2.Cells(c, 10).Value = Other_Annual_Budget
+            
+            End If
+            
+Next c
+
+'For c = 1 To y
+'
+'        If ws2.Cells(c, 1).Value = "Grand Total" Then
+'
+'            For i = 15 To z
+'
+'                If ws.Cells(i, 1).Value = "00001  TransGas Limited" And ws.Cells(i, 9).Value <> "" Then
+'
+'                ws2.Cells(c, 4).Value = ws.Cells(i, 8).Value
+'                ws2.Cells(c, 5).Value = ws.Cells(i, 9).Value
+'                ws2.Cells(c, 6).Value = ws.Cells(i, 10).Value
+'                ws2.Cells(c, 7).Value = ws.Cells(i, 11).Value
+'                ws2.Cells(c, 8).Value = ws.Cells(i, 12).Value
+'               ws2.Cells(c, 9).Value = ws.Cells(i, 13).Value
+'                ws2.Cells(c, 10).Value = ws.Cells(i, 14).Value
+'
+'                End If
+'
+'            Next i
+'
+'        End If
+'
+'Next c
+
+    For b = 6 To y
+  
+        If ws2.Cells(b, 7).Value = 0 And ws2.Cells(b, 8).Value <> 0 Then
+        ws2.Cells(b, 7).Value = 0.1
+        End If
+        
+   Next
+   
+        Application.DisplayAlerts = False
+
+        If WorkbookIsOpen(name & ".csv") Then
+        Workbooks(name & ".csv").Close False
+        End If
+        
+        ws2.Activate
+        ws2.Cells(5, 1).Select
+        ws8.Activate
+        ws8.Cells(1, 1).Select
+        wb2.Save
+        
+        Application.DisplayAlerts = True
+   
+        Call MsgBox("Running the Budget Report for SouthEast Area has been completed!", 64, "Done!")
+        
+ElseIf response = 7 Or response = 2 Then
+   
+   Call MsgBox("Running the Budget Report for SouthEast Area has not been completed.", vbCritical, "Alert!")
+   
+   Exit Sub
+
+End If
+
+Done:
+      
+   Exit Sub
+   
+eh:
+   
+   MsgBox "Error found: " & Err.Description
+
+End Sub
+
+Sub Budget_Report_Saskatoon_Area()
+
+Dim wb As Workbook
+Dim ws As Worksheet
+Dim rng As Range
+Dim Table As ListObject
+Dim ws2 As Worksheet
+Dim wb2 As Workbook
+Dim i As Integer
+Dim z As Integer
+Dim LastRow As Integer
+Dim LastColumn As Integer
+Dim Sum_YTD_Budget As Long
+Dim Sum_YTD_Actual As Long
+Dim Sum_YTD_Variance As Long
+Dim y As Integer
+Dim ListObj As ListObject
+Dim count As Integer
+Dim c As Integer
+Dim Find_Object_Code As String
+Dim Sum_MTD_Budget As Long
+Dim Sum_MTD_Actual As Long
+Dim Sum_MTD_Variance As Long
+Dim Sum_Annual_Budget As Long
+Dim b As Integer
+Dim StartCell As Range
+Dim name As String
+Dim ws8 As Worksheet
+Dim response As Integer
+Dim Other_MTD_Budget As Long
+Dim Other_MTD_Actual As Long
+Dim Other_MTD_Variance As Long
+Dim Other_YTD_Budget As Long
+Dim Other_YTD_Actual As Long
+Dim Other_YTD_Variance As Long
+Dim Other_Annual_Budget As Long
+Dim Match_Value As String
+Dim rngsearch As Range
+Dim StartCell2 As Range
+Dim LastRow2 As Integer
+Dim rng2 As Range
+
+On Error GoTo eh
+
+response = MsgBox("Do you want to run the Budget Report for Saskatoon Area?", vbYesNoCancel + vbQuestion + vbDefaultButton1 + vbApplicationModal, "Alert!")
+    
+If response = 6 Then
+
+name = Application.InputBox("Please Paste/Write the Name of the Saskatoon Area Worksheet in the Field below.", "Write the Saskatoon Area Worksheet Name", "R5509M68AA_SKTT300", , , , , 2)
+
+If name = "" Then
+
+Set wb = Workbooks("R5509M68AA_SKTT300.csv")
+Set ws = wb.Worksheets("R5509M68AA_SKTT300")
+
+Else
+
+Set wb = Workbooks(name & ".csv")
+Set ws = wb.Worksheets(name)
+
+End If
+
+Set wb2 = Workbooks("Transmission Budget Report (Level 8).xlsx")
+Set ws2 = wb2.Worksheets("Saskatoon Area Summary")
+Set ws8 = wb2.Worksheets("Main Page")
+
+count = 0
+
+For Each ListObj In ws.ListObjects
+    count = count + 1
+Next
+
+If count = 0 Then
+  
+    ws.Activate
+    ws.Columns("F:F").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("I:I").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("C:C").Select
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    
+    Application.DisplayAlerts = False
+    ws.Columns("A:A").Select
+    Selection.TextToColumns Destination:=Range("A1"), DataType:=xlDelimited, TextQualifier:=xlNone, ConsecutiveDelimiter:=False, Tab:=False, Semicolon:=False, Comma:=False, Space:=False, Other:=True, OtherChar _
+        :=".", FieldInfo:=Array(1, 1), TrailingMinusNumbers:=True
+    ws.Columns("B:B").Select
+    Selection.TextToColumns Destination:=Range("B1"), DataType:=xlDelimited, TextQualifier:=xlNone, ConsecutiveDelimiter:=True, Tab:=False, Semicolon _
+        :=False, Comma:=False, Space:=True, Other:=False, FieldInfo:=Array(1, 1), TrailingMinusNumbers:=True
+    ws.Columns("C:G").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("O:Z").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Rows("1:7").Select
+    Selection.Delete
+    Application.DisplayAlerts = True
+    
+    ws.UsedRange.Columns.AutoFit
+    
+    Set StartCell = Range("A1")
+    
+    LastRow = ws.Cells(ws.Rows.count, StartCell.Column).End(xlUp).Row
+    LastColumn = ws.Cells(StartCell.Row, ws.Columns.count).End(xlToLeft).Column
+
+    Set rng = ws.Range(StartCell, ws.Cells(LastRow, LastColumn))
+    
+    Set Table = ws.ListObjects.Add(xlSrcRange, rng, , xlYes)
+    Table.name = "Raw_Table"
+    Table.TableStyle = "TableStyleLight15"
+    Table.ShowTableStyleRowStripes = False
+    
+    With ws.Cells.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .ThemeColor = xlThemeColorDark1
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    
+End If
+    
+    z = ws.Cells(Rows.count, 1).End(xlUp).Row
+    y = ws2.Cells(Rows.count, 1).End(xlUp).Row
+    Other_MTD_Budget = 0
+    Other_MTD_Actual = 0
+    Other_MTD_Variance = 0
+    Other_YTD_Budget = 0
+    Other_YTD_Actual = 0
+    Other_YTD_Variance = 0
+    Other_Annual_Budget = 0
+    
+    
+For c = 1 To y
+    
+            Sum_YTD_Budget = 0
+            Sum_YTD_Actual = 0
+            Sum_YTD_Variance = 0
+            Sum_MTD_Budget = 0
+            Sum_MTD_Actual = 0
+            Sum_MTD_Variance = 0
+            Sum_Annual_Budget = 0
+                                
+            Find_Object_Code = ws2.Cells(c, 2).Value
+    
+        If Find_Object_Code <> "" And Find_Object_Code <> "OBJECT CODES (Description)" And Find_Object_Code <> "Other (Remaining Object Codes)" Then
+        
+            For i = 1 To z
+           
+                    If ws.Cells(i, 2).Value = Find_Object_Code Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws.Cells(i, 11).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws.Cells(i, 12).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws.Cells(i, 13).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws.Cells(i, 8).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws.Cells(i, 9).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws.Cells(i, 10).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws.Cells(i, 14).Value
+                            
+                    End If
+                    
+            Next i
+            
+            ws2.Cells(c, 4).Value = Sum_MTD_Budget
+            ws2.Cells(c, 5).Value = Sum_MTD_Actual
+            ws2.Cells(c, 6).Value = Sum_MTD_Variance
+            ws2.Cells(c, 7).Value = Sum_YTD_Budget
+            ws2.Cells(c, 8).Value = Sum_YTD_Actual
+            ws2.Cells(c, 9).Value = Sum_YTD_Variance
+            ws2.Cells(c, 10).Value = Sum_Annual_Budget
+            
+        End If
+        
+Next c
+
+        ws2.Activate
+    Set StartCell2 = Range("B1")
+    LastRow2 = ws2.Cells(ws2.Rows.count, StartCell2.Column).End(xlUp).Row
+    Set rng2 = ws2.Range(StartCell2, ws2.Cells(LastRow2, 2))
+
+For i = 2 To z
+        
+        If ws.Cells(i, 2).Value <> "" Then
+        
+        Match_Value = ws.Cells(i, 2).Value
+        
+        Set rngsearch = rng2.Find(Match_Value)
+        
+            If rngsearch Is Nothing Then
+            
+                Other_MTD_Budget = Other_MTD_Budget + ws.Cells(i, 8).Value
+                Other_MTD_Actual = Other_MTD_Actual + ws.Cells(i, 9).Value
+                Other_MTD_Variance = Other_MTD_Variance + ws.Cells(i, 10).Value
+                Other_YTD_Budget = Other_YTD_Budget + ws.Cells(i, 11).Value
+                Other_YTD_Actual = Other_YTD_Actual + ws.Cells(i, 12).Value
+                Other_YTD_Variance = Other_YTD_Variance + ws.Cells(i, 13).Value
+                Other_Annual_Budget = Other_Annual_Budget + ws.Cells(i, 14).Value
+    
+            End If
+        
+        End If
+                 
+Next
+
+
+For c = 1 To y
+
+            If ws2.Cells(c, 2).Value = "Other (Remaining Object Codes)" Then
+            
+            ws2.Cells(c, 4).Value = Other_MTD_Budget
+            ws2.Cells(c, 5).Value = Other_MTD_Actual
+            ws2.Cells(c, 6).Value = Other_MTD_Variance
+            ws2.Cells(c, 7).Value = Other_YTD_Budget
+            ws2.Cells(c, 8).Value = Other_YTD_Actual
+            ws2.Cells(c, 9).Value = Other_YTD_Variance
+            ws2.Cells(c, 10).Value = Other_Annual_Budget
+            
+            End If
+            
+Next c
+
+'For c = 1 To y
+'
+'        If ws2.Cells(c, 1).Value = "Grand Total" Then
+'
+'            For i = 15 To z
+'
+'                If ws.Cells(i, 1).Value = "00001  TransGas Limited" And ws.Cells(i, 9).Value <> "" Then
+'
+'                ws2.Cells(c, 4).Value = ws.Cells(i, 8).Value
+'                ws2.Cells(c, 5).Value = ws.Cells(i, 9).Value
+'                ws2.Cells(c, 6).Value = ws.Cells(i, 10).Value
+'                ws2.Cells(c, 7).Value = ws.Cells(i, 11).Value
+'                ws2.Cells(c, 8).Value = ws.Cells(i, 12).Value
+'               ws2.Cells(c, 9).Value = ws.Cells(i, 13).Value
+'                ws2.Cells(c, 10).Value = ws.Cells(i, 14).Value
+'
+'                End If
+'
+'            Next i
+'
+'        End If
+'
+'Next c
+
+    For b = 6 To y
+  
+        If ws2.Cells(b, 7).Value = 0 And ws2.Cells(b, 8).Value <> 0 Then
+        ws2.Cells(b, 7).Value = 0.1
+        End If
+        
+   Next
+   
+        Application.DisplayAlerts = False
+
+        If WorkbookIsOpen(name & ".csv") Then
+        Workbooks(name & ".csv").Close False
+        End If
+       
+        ws2.Activate
+        ws2.Cells(5, 1).Select
+        ws8.Activate
+        ws8.Cells(1, 1).Select
+        wb2.Save
+        
+        Application.DisplayAlerts = True
+        
+        Call MsgBox("Running the Budget Report for Saskatoon Area has been completed!", 64, "Done!")
+        
+ElseIf response = 7 Or response = 2 Then
+   
+   Call MsgBox("Running the Budget Report for Saskatoon Area has not been completed.", vbCritical, "Alert!")
+   
+   Exit Sub
+
+End If
+
+Done:
+      
+   Exit Sub
+   
+eh:
+   
+   MsgBox "Error found: " & Err.Description
+
+End Sub
+
+Sub Budget_Report_Exe_Dir_Trans_Op()
+
+Dim wb As Workbook
+Dim ws As Worksheet
+Dim rng As Range
+Dim Table As ListObject
+Dim ws2 As Worksheet
+Dim wb2 As Workbook
+Dim i As Integer
+Dim z As Integer
+Dim LastRow As Integer
+Dim LastColumn As Integer
+Dim Sum_YTD_Budget As Long
+Dim Sum_YTD_Actual As Long
+Dim Sum_YTD_Variance As Long
+Dim y As Integer
+Dim ListObj As ListObject
+Dim count As Integer
+Dim c As Integer
+Dim Find_Object_Code As String
+Dim Sum_MTD_Budget As Long
+Dim Sum_MTD_Actual As Long
+Dim Sum_MTD_Variance As Long
+Dim Sum_Annual_Budget As Long
+Dim b As Integer
+Dim StartCell As Range
+Dim name As String
+Dim ws8 As Worksheet
+Dim response As Integer
+Dim Other_MTD_Budget As Long
+Dim Other_MTD_Actual As Long
+Dim Other_MTD_Variance As Long
+Dim Other_YTD_Budget As Long
+Dim Other_YTD_Actual As Long
+Dim Other_YTD_Variance As Long
+Dim Other_Annual_Budget As Long
+Dim Match_Value As String
+Dim rngsearch As Range
+Dim StartCell2 As Range
+Dim LastRow2 As Integer
+Dim rng2 As Range
+
+On Error GoTo eh
+
+response = MsgBox("Do you want to run the Budget Report for Executive Director Transmission Operations?", vbYesNoCancel + vbQuestion + vbDefaultButton1 + vbApplicationModal, "Alert!")
+    
+If response = 6 Then
+
+name = Application.InputBox("Please Paste/Write the Name of the Exe. Dir. Trans Op Worksheet in the Field below.", "Write the Exe. Dir. Trans Op Worksheet Name", "R5509M68AA_OPS300", , , , , 2)
+
+If name = "" Then
+
+Set wb = Workbooks("R5509M68AA_OPS300.csv")
+Set ws = wb.Worksheets("R5509M68AA_OPS300")
+
+Else
+
+Set wb = Workbooks(name & ".csv")
+Set ws = wb.Worksheets(name)
+
+End If
+
+Set wb2 = Workbooks("Transmission Budget Report (Level 8).xlsx")
+Set ws2 = wb2.Worksheets("Exe. Dir. Trans Op Summary")
+Set ws8 = wb2.Worksheets("Main Page")
+
+count = 0
+
+For Each ListObj In ws.ListObjects
+    count = count + 1
+Next
+
+If count = 0 Then
+  
+    ws.Activate
+    ws.Columns("F:F").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("I:I").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("C:C").Select
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    Selection.Insert Shift:=xlToRight
+    
+    Application.DisplayAlerts = False
+    ws.Columns("A:A").Select
+    Selection.TextToColumns Destination:=Range("A1"), DataType:=xlDelimited, TextQualifier:=xlNone, ConsecutiveDelimiter:=False, Tab:=False, Semicolon:=False, Comma:=False, Space:=False, Other:=True, OtherChar _
+        :=".", FieldInfo:=Array(1, 1), TrailingMinusNumbers:=True
+    ws.Columns("B:B").Select
+    Selection.TextToColumns Destination:=Range("B1"), DataType:=xlDelimited, TextQualifier:=xlNone, ConsecutiveDelimiter:=True, Tab:=False, Semicolon _
+        :=False, Comma:=False, Space:=True, Other:=False, FieldInfo:=Array(1, 1), TrailingMinusNumbers:=True
+    ws.Columns("C:G").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Columns("O:Z").Select
+    Selection.Delete Shift:=xlToLeft
+    ws.Rows("1:7").Select
+    Selection.Delete
+    Application.DisplayAlerts = True
+    
+    ws.UsedRange.Columns.AutoFit
+    
+    Set StartCell = Range("A1")
+    
+    LastRow = ws.Cells(ws.Rows.count, StartCell.Column).End(xlUp).Row
+    LastColumn = ws.Cells(StartCell.Row, ws.Columns.count).End(xlToLeft).Column
+
+    Set rng = ws.Range(StartCell, ws.Cells(LastRow, LastColumn))
+    
+    Set Table = ws.ListObjects.Add(xlSrcRange, rng, , xlYes)
+    Table.name = "Raw_Table"
+    Table.TableStyle = "TableStyleLight15"
+    Table.ShowTableStyleRowStripes = False
+    
+    With ws.Cells.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .ThemeColor = xlThemeColorDark1
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    
+End If
+    
+    z = ws.Cells(Rows.count, 1).End(xlUp).Row
+    y = ws2.Cells(Rows.count, 1).End(xlUp).Row
+    Other_MTD_Budget = 0
+    Other_MTD_Actual = 0
+    Other_MTD_Variance = 0
+    Other_YTD_Budget = 0
+    Other_YTD_Actual = 0
+    Other_YTD_Variance = 0
+    Other_Annual_Budget = 0
+    
+    
+For c = 1 To y
+    
+            Sum_YTD_Budget = 0
+            Sum_YTD_Actual = 0
+            Sum_YTD_Variance = 0
+            Sum_MTD_Budget = 0
+            Sum_MTD_Actual = 0
+            Sum_MTD_Variance = 0
+            Sum_Annual_Budget = 0
+                                
+            Find_Object_Code = ws2.Cells(c, 2).Value
+    
+        If Find_Object_Code <> "" And Find_Object_Code <> "OBJECT CODES (Description)" And Find_Object_Code <> "Other (Remaining Object Codes)" Then
+        
+            For i = 1 To z
+           
+                    If ws.Cells(i, 2).Value = Find_Object_Code Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws.Cells(i, 11).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws.Cells(i, 12).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws.Cells(i, 13).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws.Cells(i, 8).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws.Cells(i, 9).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws.Cells(i, 10).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws.Cells(i, 14).Value
+                            
+                    End If
+                    
+            Next i
+            
+            ws2.Cells(c, 4).Value = Sum_MTD_Budget
+            ws2.Cells(c, 5).Value = Sum_MTD_Actual
+            ws2.Cells(c, 6).Value = Sum_MTD_Variance
+            ws2.Cells(c, 7).Value = Sum_YTD_Budget
+            ws2.Cells(c, 8).Value = Sum_YTD_Actual
+            ws2.Cells(c, 9).Value = Sum_YTD_Variance
+            ws2.Cells(c, 10).Value = Sum_Annual_Budget
+            
+        End If
+        
+Next c
+    
+    ws2.Activate
+    Set StartCell2 = Range("B1")
+    LastRow2 = ws2.Cells(ws2.Rows.count, StartCell2.Column).End(xlUp).Row
+    Set rng2 = ws2.Range(StartCell2, ws2.Cells(LastRow2, 2))
+
+For i = 2 To z
+        
+        If ws.Cells(i, 2).Value <> "" Then
+        
+        Match_Value = ws.Cells(i, 2).Value
+        
+        Set rngsearch = rng2.Find(Match_Value)
+        
+            If rngsearch Is Nothing Then
+            
+                Other_MTD_Budget = Other_MTD_Budget + ws.Cells(i, 8).Value
+                Other_MTD_Actual = Other_MTD_Actual + ws.Cells(i, 9).Value
+                Other_MTD_Variance = Other_MTD_Variance + ws.Cells(i, 10).Value
+                Other_YTD_Budget = Other_YTD_Budget + ws.Cells(i, 11).Value
+                Other_YTD_Actual = Other_YTD_Actual + ws.Cells(i, 12).Value
+                Other_YTD_Variance = Other_YTD_Variance + ws.Cells(i, 13).Value
+                Other_Annual_Budget = Other_Annual_Budget + ws.Cells(i, 14).Value
+    
+            End If
+        
+        End If
+                 
+Next
+
+
+For c = 1 To y
+
+            If ws2.Cells(c, 2).Value = "Other (Remaining Object Codes)" Then
+            
+            ws2.Cells(c, 4).Value = Other_MTD_Budget
+            ws2.Cells(c, 5).Value = Other_MTD_Actual
+            ws2.Cells(c, 6).Value = Other_MTD_Variance
+            ws2.Cells(c, 7).Value = Other_YTD_Budget
+            ws2.Cells(c, 8).Value = Other_YTD_Actual
+            ws2.Cells(c, 9).Value = Other_YTD_Variance
+            ws2.Cells(c, 10).Value = Other_Annual_Budget
+            
+            End If
+            
+Next c
+
+'For c = 1 To y
+'
+'        If ws2.Cells(c, 1).Value = "Grand Total" Then
+'
+'            For i = 15 To z
+'
+'                If ws.Cells(i, 1).Value = "00001  TransGas Limited" And ws.Cells(i, 9).Value <> "" Then
+'
+'                ws2.Cells(c, 4).Value = ws.Cells(i, 8).Value
+'                ws2.Cells(c, 5).Value = ws.Cells(i, 9).Value
+'                ws2.Cells(c, 6).Value = ws.Cells(i, 10).Value
+'                ws2.Cells(c, 7).Value = ws.Cells(i, 11).Value
+'                ws2.Cells(c, 8).Value = ws.Cells(i, 12).Value
+'               ws2.Cells(c, 9).Value = ws.Cells(i, 13).Value
+'                ws2.Cells(c, 10).Value = ws.Cells(i, 14).Value
+'
+'                End If
+'
+'            Next i
+'
+'        End If
+'
+'Next c
+
+    For b = 6 To y
+  
+        If ws2.Cells(b, 7).Value = 0 And ws2.Cells(b, 8).Value <> 0 Then
+        ws2.Cells(b, 7).Value = 0.1
+        End If
+        
+   Next
+   
+        Application.DisplayAlerts = False
+
+        If WorkbookIsOpen(name & ".csv") Then
+        Workbooks(name & ".csv").Close False
+        End If
+       
+        ws2.Activate
+        ws2.Cells(5, 1).Select
+        ws8.Activate
+        ws8.Cells(1, 1).Select
+        wb2.Save
+        
+        Application.DisplayAlerts = True
+  
+        Call MsgBox("Running the Budget Report for Executive Director Transmission Operations has been completed!", 64, "Done!")
+        
+ElseIf response = 7 Or response = 2 Then
+   
+   Call MsgBox("Running the Budget Report for Executive Director Transmission Operations has not been completed.", vbCritical, "Alert!")
+   
+   Exit Sub
+
+End If
+
+Done:
+      
+   Exit Sub
+   
+eh:
+   
+   MsgBox "Error found: " & Err.Description
+
+End Sub
+
+Function WorkbookIsOpen(WorkbookName As String) As Boolean
+On Error Resume Next
+WorkbookIsOpen = Workbooks(WorkbookName).name = WorkbookName
+On Error GoTo 0
+End Function
+
+Sub Budget_Report_All_Area()
+
+Dim ws As Worksheet
+Dim ws3 As Worksheet
+Dim ws4 As Worksheet
+Dim ws5 As Worksheet
+Dim ws6 As Worksheet
+Dim ws7 As Worksheet
+Dim rng As Range
+Dim ws2 As Worksheet
+Dim wb2 As Workbook
+Dim ws8 As Worksheet
+Dim i As Integer
+Dim Sum_YTD_Budget As Long
+Dim Sum_YTD_Actual As Long
+Dim Sum_YTD_Variance As Long
+Dim y As Integer
+Dim c As Integer
+Dim Find_Object_Code As String
+Dim Sum_MTD_Budget As Long
+Dim Sum_MTD_Actual As Long
+Dim Sum_MTD_Variance As Long
+Dim Sum_Annual_Budget As Long
+Dim b As Integer
+Dim response As Integer
+
+On Error GoTo eh
+
+response = MsgBox("Do you want to run the Budget Report for All Area?", vbYesNoCancel + vbQuestion + vbDefaultButton1 + vbApplicationModal, "Alert!")
+    
+If response = 6 Then
+
+Set wb2 = Workbooks("Transmission Budget Report (Level 8).xlsx")
+Set ws2 = wb2.Worksheets("All Area Summary")
+Set ws = wb2.Worksheets("Exe. Dir. Trans Op Summary")
+Set ws3 = wb2.Worksheets("Regina Area Summary")
+Set ws4 = wb2.Worksheets("North Area Summary")
+Set ws5 = wb2.Worksheets("SouthWest Area Summary")
+Set ws6 = wb2.Worksheets("SouthEast Area Summary")
+Set ws7 = wb2.Worksheets("Saskatoon Area Summary")
+Set ws8 = wb2.Worksheets("Main Page")
+
+    y = ws2.Cells(Rows.count, 1).End(xlUp).Row
+    
+    For c = 1 To y
+    
+            Sum_YTD_Budget = 0
+            Sum_YTD_Actual = 0
+            Sum_YTD_Variance = 0
+            Sum_MTD_Budget = 0
+            Sum_MTD_Actual = 0
+            Sum_MTD_Variance = 0
+            Sum_Annual_Budget = 0
+                      
+            Find_Object_Code = ws2.Cells(c, 2).Value
+    
+        If Find_Object_Code <> "" And Find_Object_Code <> "OBJECT CODES (Description)" Then
+        
+            For i = 1 To y
+           
+                    If ws.Cells(i, 2).Value = Find_Object_Code Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws.Cells(i, 7).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws.Cells(i, 8).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws.Cells(i, 9).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws.Cells(i, 4).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws.Cells(i, 5).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws.Cells(i, 6).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws.Cells(i, 10).Value
+                            
+                    End If
+                    
+                    If ws3.Cells(i, 2).Value = Find_Object_Code Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws3.Cells(i, 7).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws3.Cells(i, 8).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws3.Cells(i, 9).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws3.Cells(i, 4).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws3.Cells(i, 5).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws3.Cells(i, 6).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws3.Cells(i, 10).Value
+                            
+                    End If
+                    
+                    If ws4.Cells(i, 2).Value = Find_Object_Code Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws4.Cells(i, 7).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws4.Cells(i, 8).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws4.Cells(i, 9).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws4.Cells(i, 4).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws4.Cells(i, 5).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws4.Cells(i, 6).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws4.Cells(i, 10).Value
+                            
+                    End If
+                    
+                     If ws5.Cells(i, 2).Value = Find_Object_Code Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws5.Cells(i, 7).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws5.Cells(i, 8).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws5.Cells(i, 9).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws5.Cells(i, 4).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws5.Cells(i, 5).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws5.Cells(i, 6).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws5.Cells(i, 10).Value
+                            
+                    End If
+                    
+                    If ws6.Cells(i, 2).Value = Find_Object_Code Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws6.Cells(i, 7).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws6.Cells(i, 8).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws6.Cells(i, 9).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws6.Cells(i, 4).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws6.Cells(i, 5).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws6.Cells(i, 6).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws6.Cells(i, 10).Value
+                            
+                    End If
+                    
+                    If ws7.Cells(i, 2).Value = Find_Object_Code Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws7.Cells(i, 7).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws7.Cells(i, 8).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws7.Cells(i, 9).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws7.Cells(i, 4).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws7.Cells(i, 5).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws7.Cells(i, 6).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws7.Cells(i, 10).Value
+                            
+                    End If
+                                   
+            Next i
+        
+            ws2.Cells(c, 4).Value = Sum_MTD_Budget
+            ws2.Cells(c, 5).Value = Sum_MTD_Actual
+            ws2.Cells(c, 6).Value = Sum_MTD_Variance
+            ws2.Cells(c, 7).Value = Sum_YTD_Budget
+            ws2.Cells(c, 8).Value = Sum_YTD_Actual
+            ws2.Cells(c, 9).Value = Sum_YTD_Variance
+            ws2.Cells(c, 10).Value = Sum_Annual_Budget
+            
+        End If
+        
+    Next c
+    
+        For c = 1 To y
+                      
+            Sum_YTD_Budget = 0
+            Sum_YTD_Actual = 0
+            Sum_YTD_Variance = 0
+            Sum_MTD_Budget = 0
+            Sum_MTD_Actual = 0
+            Sum_MTD_Variance = 0
+            Sum_Annual_Budget = 0
+    
+        If ws2.Cells(c, 1).Value = "Grand Total" Then
+        
+            For i = 1 To y
+           
+                    If ws.Cells(i, 1).Value = "Grand Total" Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws.Cells(i, 7).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws.Cells(i, 8).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws.Cells(i, 9).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws.Cells(i, 4).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws.Cells(i, 5).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws.Cells(i, 6).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws.Cells(i, 10).Value
+                            
+                    End If
+                    
+                    If ws3.Cells(i, 1).Value = "Grand Total" Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws3.Cells(i, 7).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws3.Cells(i, 8).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws3.Cells(i, 9).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws3.Cells(i, 4).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws3.Cells(i, 5).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws3.Cells(i, 6).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws3.Cells(i, 10).Value
+                            
+                    End If
+                    
+                    If ws4.Cells(i, 1).Value = "Grand Total" Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws4.Cells(i, 7).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws4.Cells(i, 8).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws4.Cells(i, 9).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws4.Cells(i, 4).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws4.Cells(i, 5).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws4.Cells(i, 6).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws4.Cells(i, 10).Value
+                            
+                    End If
+                    
+                     If ws5.Cells(i, 1).Value = "Grand Total" Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws5.Cells(i, 7).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws5.Cells(i, 8).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws5.Cells(i, 9).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws5.Cells(i, 4).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws5.Cells(i, 5).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws5.Cells(i, 6).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws5.Cells(i, 10).Value
+                            
+                    End If
+                    
+                    If ws6.Cells(i, 1).Value = "Grand Total" Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws6.Cells(i, 7).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws6.Cells(i, 8).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws6.Cells(i, 9).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws6.Cells(i, 4).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws6.Cells(i, 5).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws6.Cells(i, 6).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws6.Cells(i, 10).Value
+                            
+                    End If
+                    
+                    If ws7.Cells(i, 1).Value = "Grand Total" Then
+                            
+                            Sum_YTD_Budget = Sum_YTD_Budget + ws7.Cells(i, 7).Value
+                            Sum_YTD_Actual = Sum_YTD_Actual + ws7.Cells(i, 8).Value
+                            Sum_YTD_Variance = Sum_YTD_Variance + ws7.Cells(i, 9).Value
+                            Sum_MTD_Budget = Sum_MTD_Budget + ws7.Cells(i, 4).Value
+                            Sum_MTD_Actual = Sum_MTD_Actual + ws7.Cells(i, 5).Value
+                            Sum_MTD_Variance = Sum_MTD_Variance + ws7.Cells(i, 6).Value
+                            Sum_Annual_Budget = Sum_Annual_Budget + ws7.Cells(i, 10).Value
+                            
+                    End If
+                                   
+            Next i
+        
+            ws2.Cells(c, 4).Value = Sum_MTD_Budget
+            ws2.Cells(c, 5).Value = Sum_MTD_Actual
+            ws2.Cells(c, 6).Value = Sum_MTD_Variance
+            ws2.Cells(c, 7).Value = Sum_YTD_Budget
+            ws2.Cells(c, 8).Value = Sum_YTD_Actual
+            ws2.Cells(c, 9).Value = Sum_YTD_Variance
+            ws2.Cells(c, 10).Value = Sum_Annual_Budget
+            
+        End If
+        
+    Next c
+    
+    
+    For b = 6 To y
+    
+        If ws2.Cells(b, 7).Value = 0 And ws2.Cells(b, 8).Value <> 0 Then
+        ws2.Cells(b, 7).Value = 0.1
+        End If
+        
+   Next
+   
+   
+  
+        Application.DisplayAlerts = False
+        ws2.Activate
+        ws2.Cells(5, 1).Select
+        ws8.Activate
+        ws8.Cells(1, 1).Select
+        wb2.Save
+        Application.DisplayAlerts = True
+        
+        Call MsgBox("Running the Budget Report for All Area has been completed!", 64, "Done!")
+                
+ElseIf response = 7 Or response = 2 Then
+   
+   Call MsgBox("Running the Budget Report for All Area has not been completed.", vbCritical, "Alert!")
+   
+   Exit Sub
+
+End If
+   
+Done:
+      
+   Exit Sub
+   
+eh:
+   
+   MsgBox "Error found: " & Err.Description
+
+End Sub
+
+Sub Graph_Update()
+
+Dim wb As Workbook
+Dim ws As Worksheet
+Dim s As Series
+Dim p As Point
+Dim vals
+Dim sht As Worksheet
+Dim cht As ChartObject
+Dim a As Integer
+Dim response As Integer
+On Error GoTo eh
+Dim ws2 As Worksheet
+Set wb = Workbooks("Budget Graph.xlsx")
+Set ws2 = wb.Worksheets("Main Page")
+
+response = MsgBox("Do you want to update the color coding of charts?", vbYesNoCancel + vbQuestion + vbDefaultButton1 + vbApplicationModal, "Alert!")
+    
+If response = 6 Then
+
+
+For Each sht In wb.Worksheets
+ 
+  If sht.name <> "Budget Pivot Chart" And sht.name <> "Pivot Table Data" Then
+
+  For Each cht In sht.ChartObjects
+  
+     cht.Activate
+     Set s = ActiveChart.SeriesCollection(1)
+     vals = s.Values
+        
+        If vals(1) = 25 Then
+        
+        ActiveChart.FullSeriesCollection(1).Points(1).Select
+                With Selection.Format.Fill
+                    .Visible = msoTrue
+                    .ForeColor.RGB = RGB(146, 208, 80)
+                    .Transparency = 0
+                    .Solid
+                End With
+        ActiveChart.FullSeriesCollection(1).Points(2).Select
+                With Selection.Format.Fill
+                    .Visible = msoTrue
+                    .ForeColor.ObjectThemeColor = msoThemeColorAccent1
+                    .ForeColor.TintAndShade = 0
+                    .ForeColor.Brightness = 0.4
+                    .Transparency = 0
+                    .Solid
+                End With
+        
+        Else
+        
+        ActiveChart.FullSeriesCollection(1).Points(1).Select
+                With Selection.Format.Fill
+                    .Visible = msoTrue
+                    .ForeColor.RGB = RGB(252, 246, 0)
+                    .Transparency = 0
+                    .Solid
+                End With
+        ActiveChart.FullSeriesCollection(1).Points(2).Select
+                With Selection.Format.Fill
+                    .Visible = msoTrue
+                    .ForeColor.RGB = RGB(239, 141, 75)
+                    .Transparency = 0
+                    .Solid
+                End With
+        ActiveChart.FullSeriesCollection(1).Points(3).Select
+                With Selection.Format.Fill
+                    .Visible = msoTrue
+                    .ForeColor.RGB = RGB(255, 0, 0)
+                    .Transparency = 0
+                    .Solid
+                End With
+      
+        End If
+        
+  Next cht
+  
+  sht.Activate
+  ActiveSheet.Cells(7, 11).Select
+  
+  End If
+  
+Next sht
+
+
+Application.DisplayAlerts = False
+ws2.Activate
+ws2.Cells(1, 1).Select
+wb.Save
+Application.DisplayAlerts = True
+
+        Call MsgBox("Color coding of charts has been completed!", 64, "Done!")
+                
+ElseIf response = 7 Or response = 2 Then
+   
+   Call MsgBox("Color coding of charts has not been completed.", vbCritical, "Alert!")
+   
+   Exit Sub
+
+End If
+
+Done:
+      
+   Exit Sub
+   
+eh:
+   
+   MsgBox "Error found: " & Err.Description
+
+End Sub
+
+Sub Pivot_Table_Graph()
+
+Dim ws As Worksheet
+Dim ws3 As Worksheet
+Dim ws4 As Worksheet
+Dim ws5 As Worksheet
+Dim ws6 As Worksheet
+Dim ws7 As Worksheet
+Dim ws2 As Worksheet
+Dim wb2 As Workbook
+Dim i As Integer
+Dim y As Integer
+Dim c As Integer
+Dim Find_Object_Code As String
+Dim b As Integer
+Dim wb3 As Workbook
+Dim ws1 As Worksheet
+Dim percentage As Double
+Dim ws8 As Worksheet
+Dim ws9 As Worksheet
+Dim response As Integer
+
+On Error GoTo eh
+
+response = MsgBox("Do you want to update the Pivot Table Data?", vbYesNoCancel + vbQuestion + vbDefaultButton1 + vbApplicationModal, "Alert!")
+    
+If response = 6 Then
+
+Set wb2 = Workbooks("Transmission Budget Report (Level 8).xlsx")
+Set wb3 = Workbooks("Budget Graph.xlsx")
+Set ws2 = wb3.Worksheets("Pivot Table Data")
+Set ws1 = wb2.Worksheets("All Area Summary")
+Set ws = wb2.Worksheets("Exe. Dir. Trans Op Summary")
+Set ws3 = wb2.Worksheets("Regina Area Summary")
+Set ws4 = wb2.Worksheets("North Area Summary")
+Set ws5 = wb2.Worksheets("SouthWest Area Summary")
+Set ws6 = wb2.Worksheets("SouthEast Area Summary")
+Set ws7 = wb2.Worksheets("Saskatoon Area Summary")
+Set ws9 = wb3.Worksheets("Main Page")
+
+   ws.Activate
+   b = ws.Cells(Rows.count, 1).End(xlUp).Row
+    
+    For c = 1 To 75
+                     
+    Find_Object_Code = Left(ws2.Cells(c, 2).Value, 4)
+    
+    If Find_Object_Code <> "" And Find_Object_Code <> "OBJECT CODES (Description)" Then
+        
+            For i = 1 To b
+           
+                    If ws.Cells(i, 2).Value = Find_Object_Code Then
+                                
+                        If ws.Cells(i, 7).Value <> 0 Then
+                        percentage = ws.Cells(i, 8).Value / ws.Cells(i, 7).Value
+                        ws2.Cells(c, 4).Value = FormatPercent(percentage, 0)
+                        Else
+                        ws2.Cells(c, 4).Value = ""
+                        End If
+                            
+                    End If
+                    
+                    If ws3.Cells(i, 2).Value = Find_Object_Code Then
+                            
+                        If ws3.Cells(i, 7).Value <> 0 Then
+                        percentage = ws3.Cells(i, 8).Value / ws3.Cells(i, 7).Value
+                        ws2.Cells(c, 5).Value = FormatPercent(percentage, 0)
+                        Else
+                        ws2.Cells(c, 5).Value = ""
+                        End If
+                            
+                    End If
+                    
+                    If ws4.Cells(i, 2).Value = Find_Object_Code Then
+                        
+                        If ws4.Cells(i, 7).Value <> 0 Then
+                        percentage = ws4.Cells(i, 8).Value / ws4.Cells(i, 7).Value
+                        ws2.Cells(c, 6).Value = FormatPercent(percentage, 0)
+                        Else
+                        ws2.Cells(c, 6).Value = ""
+                        End If
+                        
+                    End If
+                    
+                    If ws5.Cells(i, 2).Value = Find_Object_Code Then
+                            
+                        If ws5.Cells(i, 7).Value <> 0 Then
+                        percentage = ws5.Cells(i, 8).Value / ws5.Cells(i, 7).Value
+                        ws2.Cells(c, 7).Value = FormatPercent(percentage, 0)
+                        Else
+                        ws2.Cells(c, 7).Value = ""
+                        End If
+                        
+                    End If
+                    
+                    If ws6.Cells(i, 2).Value = Find_Object_Code Then
+                    
+                        If ws6.Cells(i, 7).Value <> 0 Then
+                        percentage = ws6.Cells(i, 8).Value / ws6.Cells(i, 7).Value
+                        ws2.Cells(c, 8).Value = FormatPercent(percentage, 0)
+                        Else
+                        ws2.Cells(c, 8).Value = ""
+                        End If
+                        
+                    End If
+                    
+                    If ws7.Cells(i, 2).Value = Find_Object_Code Then
+                        
+                        If ws7.Cells(i, 7).Value <> 0 Then
+                        percentage = ws7.Cells(i, 8).Value / ws7.Cells(i, 7).Value
+                        ws2.Cells(c, 9).Value = FormatPercent(percentage, 0)
+                        Else
+                        ws2.Cells(c, 9).Value = ""
+                        End If
+                        
+                    End If
+                    
+                    If ws1.Cells(i, 2).Value = Find_Object_Code Then
+                        
+                        If ws1.Cells(i, 7).Value <> 0 Then
+                        percentage = ws1.Cells(i, 8).Value / ws1.Cells(i, 7).Value
+                        ws2.Cells(c, 3).Value = FormatPercent(percentage, 0)
+                        Else
+                        ws2.Cells(c, 3).Value = ""
+                        End If
+                        
+                    End If
+                                   
+            Next i
+        
+            
+        End If
+    
+    Next c
+    
+        ws2.PivotTables("PivotTable2").PivotCache.Refresh
+        ws9.Activate
+        ws9.Cells(7, 1).Select
+        Application.DisplayAlerts = False
+        wb3.Save
+        Application.DisplayAlerts = True
+        
+        Call MsgBox("Updatinging the Pivot Table Data has been completed!", 64, "Done!")
+                
+ElseIf response = 7 Or response = 2 Then
+   
+   Call MsgBox("Updating the Pivot Table Data has not been completed.", vbCritical, "Alert!")
+   
+   Exit Sub
+
+End If
+   
+Done:
+      
+   Exit Sub
+   
+eh:
+   
+   MsgBox "Error found: " & Err.Description
+
+End Sub
