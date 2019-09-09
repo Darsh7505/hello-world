@@ -1,0 +1,457 @@
+Option Explicit
+
+Sub Rectangle7_Click()
+
+Dim rng As Range
+Dim tbl2 As ListObject
+Dim wb As Workbook: Set wb = ThisWorkbook
+Dim ws1 As Worksheet
+Dim ws2 As Worksheet
+Dim i As Integer
+Dim z As Long
+Dim Since_Last_Inspection As Integer
+Dim Frequency As Integer
+Dim Value As Double
+Dim Current_Status As String
+Dim a As Integer
+Dim myChart As ChartObject
+Dim tmpName As String
+Dim RngToCover As Range
+Dim ChtOb As ChartObject
+Dim lstrow As Integer
+Dim t As Variant
+On Error Resume Next
+
+Set ws1 = wb.Sheets("Inspection Discussion Notes")
+Set ws2 = wb.Sheets("Engine Inspection Overview")
+  
+  Set tbl2 = ws2.ListObjects("Table9")
+
+  ws2.Activate
+  ws2.Columns("B:BZ").Select
+  Selection.Delete
+  
+  lstrow = ws1.Cells(Rows.Count, 1).End(xlUp).Row
+  a = 2
+  
+  For i = 2 To lstrow
+  
+    'If Not ws1.Cells(i, 1).EntireRow.Hidden Then
+    
+        If ws1.Cells(i, 12).Value = "" Then
+    
+        Since_Last_Inspection = ws1.Cells(i, 15).Value
+        Frequency = ws1.Cells(i, 4).Value
+        Value = Since_Last_Inspection / Frequency
+        Current_Status = FormatPercent(Value, 0)
+    
+        ws2.Cells(4, a).Value = ws1.Cells(i, 1).Value
+        ws2.Cells(5, a).Value = "90%"
+        ws2.Cells(6, a).Value = "10%"
+        ws2.Cells(7, a).Value = "50%"
+        
+        ws2.Cells(8, a).Value = Current_Status
+            If ws2.Cells(8, a).Value < 1 And ws2.Cells(8, a).Value > 0.9 Then
+                With ws2.Cells(8, a).Interior
+                .Pattern = xlSolid
+                .PatternColorIndex = xlAutomatic
+                .Color = 49407
+                .TintAndShade = 0
+                .PatternTintAndShade = 0
+                End With
+                With ws2.Cells(11, a).Interior
+                .Pattern = xlSolid
+                .PatternColorIndex = xlAutomatic
+                .Color = 49407
+                .TintAndShade = 0
+                .PatternTintAndShade = 0
+                End With
+                ElseIf ws2.Cells(8, a).Value > 1 Then
+                With ws2.Cells(8, a).Interior
+                .Pattern = xlSolid
+                .PatternColorIndex = xlAutomatic
+                .Color = 255
+                .TintAndShade = 0
+                .PatternTintAndShade = 0
+                End With
+            End If
+            
+        ws2.Cells(9, a).Value = "90%"
+        ws2.Cells(10, a).Value = ws1.Cells(i, 7)
+  
+            If Since_Last_Inspection < Frequency Then
+            ws2.Cells(11, a).Value = Frequency - Since_Last_Inspection
+            Else
+            ws2.Cells(11, a).Value = ""
+            End If
+            
+            If Since_Last_Inspection >= Frequency Then
+            ws2.Cells(12, a).Value = Since_Last_Inspection - Frequency
+                With ws2.Cells(12, a).Interior
+                .Pattern = xlSolid
+                .PatternColorIndex = xlAutomatic
+                .Color = 255
+                .TintAndShade = 0
+                .PatternTintAndShade = 0
+                End With
+            Else
+            ws2.Cells(12, a).Value = ""
+            End If
+  
+        a = a + 1
+        
+        End If
+        
+    'End If
+  
+  Next i
+    
+  tbl2.Range.Select
+  Selection.Font.Bold = False
+  
+  ws2.Range("Table9[Engine Inspection Overview]").Select
+  Selection.Font.Bold = True
+  
+        For Each myChart In ws2.ChartObjects
+          
+        tmpName = myChart.Name
+        myChart.Delete
+                
+        Next myChart
+          
+  z = tbl2.Range.Columns.Count
+  Set rng = ws2.Range(Cells(4, 1), Cells(9, z))
+
+    rng.Select
+    ActiveSheet.Shapes.AddChart2(297, xlColumnStacked).Select
+    ActiveChart.SetSourceData Source:=rng
+    
+    For i = 1 To ActiveSheet.ChartObjects.Count
+    ActiveSheet.ChartObjects(i).Name = "Chart " & i
+    Next i
+    
+    ws2.ChartObjects("Chart 1").Activate
+ 
+    ActiveChart.PlotBy = xlRows
+    ActiveChart.PlotArea.Select
+    ActiveChart.ChartType = xlColumnClustered
+    ActiveChart.FullSeriesCollection(1).ChartType = xlColumnClustered
+    ActiveChart.FullSeriesCollection(1).AxisGroup = 1
+    ActiveChart.FullSeriesCollection(2).ChartType = xlColumnClustered
+    ActiveChart.FullSeriesCollection(2).AxisGroup = 1
+    ActiveChart.FullSeriesCollection(3).ChartType = xlColumnClustered
+    ActiveChart.FullSeriesCollection(3).AxisGroup = 1
+    ActiveChart.FullSeriesCollection(4).ChartType = xlLine
+    ActiveChart.FullSeriesCollection(4).AxisGroup = 1
+    ActiveChart.FullSeriesCollection(5).ChartType = xlLine
+    ActiveChart.FullSeriesCollection(5).AxisGroup = 1
+    ActiveChart.FullSeriesCollection(4).ChartType = xlColumnStacked
+    ActiveChart.FullSeriesCollection(5).ChartType = xlLineMarkersStacked
+    ActiveChart.FullSeriesCollection(4).AxisGroup = 2
+    
+    ActiveChart.Axes(xlValue, xlSecondary).Select
+    Selection.Delete
+    
+    ActiveChart.FullSeriesCollection(4).Select
+    ActiveChart.ChartGroups(2).GapWidth = 500
+    
+    ActiveChart.FullSeriesCollection(5).Select
+    Selection.MarkerStyle = -4115
+    Selection.MarkerSize = 10
+    With Selection.Format.Line
+        .Visible = msoTrue
+        .ForeColor.RGB = RGB(51, 204, 0)
+        .Transparency = 0
+    End With
+    ActiveChart.FullSeriesCollection(5).Select
+    With Selection.Format.Fill
+        .Visible = msoTrue
+        .ForeColor.RGB = RGB(51, 204, 0)
+        .Transparency = 0
+        .Solid
+    End With
+    
+    ActiveChart.FullSeriesCollection(4).Select
+    With Selection.Format.Fill
+        .Visible = msoTrue
+        .ForeColor.RGB = RGB(0, 0, 0)
+        .Transparency = 0
+        .Solid
+    End With
+    
+    ActiveChart.FullSeriesCollection(1).Select
+    With Selection.Format.Fill
+        .Visible = msoTrue
+        .ForeColor.ObjectThemeColor = msoThemeColorText1
+        .ForeColor.TintAndShade = 0
+        .ForeColor.Brightness = 0.8
+        .Transparency = 0
+        .Solid
+    End With
+    
+    ActiveChart.FullSeriesCollection(2).Select
+    With Selection.Format.Fill
+        .Visible = msoTrue
+        .ForeColor.RGB = RGB(255, 204, 0)
+        .Transparency = 0
+        .Solid
+    End With
+    
+    ActiveChart.FullSeriesCollection(3).Select
+    With Selection.Format.Fill
+        .Visible = msoTrue
+        .ForeColor.RGB = RGB(255, 0, 0)
+        .Transparency = 0
+        .Solid
+    End With
+    
+    ActiveChart.Axes(xlValue).Select
+    Selection.MajorTickMark = xlCross
+    With Selection.Format.Line
+        .Visible = msoTrue
+        .ForeColor.ObjectThemeColor = msoThemeColorAccent1
+        .Visible = msoTrue
+        .ForeColor.RGB = RGB(0, 32, 96)
+        .Transparency = 0
+    End With
+    With Selection.Format.Fill
+        .Visible = msoTrue
+        .ForeColor.ObjectThemeColor = msoThemeColorBackground1
+        .ForeColor.TintAndShade = 0
+        .ForeColor.Brightness = 0
+        .Transparency = 0
+        .Solid
+    End With
+    
+    Selection.MinorTickMark = xlOutside
+    ActiveChart.Axes(xlValue).MajorUnit = 0.1
+    ActiveChart.Axes(xlValue).MaximumScale = 1.5
+    
+    ActiveChart.SetElement (msoElementPrimaryCategoryAxisTitleAdjacentToAxis)
+    ActiveChart.SetElement (msoElementPrimaryValueAxisTitleAdjacentToAxis)
+    ActiveChart.SetElement (msoElementChartTitleAboveChart)
+    ActiveChart.SetElement (msoElementDataLabelShow)
+    ActiveChart.SetElement (msoElementDataLabelNone)
+    ActiveChart.SetElement (msoElementLegendRight)
+    
+    ActiveChart.ChartTitle.Select
+    ActiveChart.ChartTitle.Text = "Engine Inspection Overview"
+    Selection.Format.TextFrame2.TextRange.Characters.Text = "Engine Inspection Overview"
+    With Selection.Format.TextFrame2.TextRange.Characters(1, 26).ParagraphFormat
+        .TextDirection = msoTextDirectionLeftToRight
+        .Alignment = msoAlignCenter
+    End With
+    With Selection.Format.TextFrame2.TextRange.Characters(1, 26).Font
+        .BaselineOffset = 0
+        .Bold = msoFalse
+        .NameComplexScript = "+mn-cs"
+        .NameFarEast = "+mn-ea"
+        .Fill.Visible = msoTrue
+        .Fill.ForeColor.RGB = RGB(89, 89, 89)
+        .Fill.Transparency = 0
+        .Fill.Solid
+        .Size = 14
+        .Italic = msoFalse
+        .Kerning = 12
+        .Name = "+mn-lt"
+        .UnderlineStyle = msoNoUnderline
+        .Spacing = 0
+        .Strike = msoNoStrike
+    End With
+    With Selection.Format.TextFrame2.TextRange.Font.Fill
+        .Visible = msoTrue
+        .ForeColor.ObjectThemeColor = msoThemeColorText1
+        .ForeColor.TintAndShade = 0
+        .ForeColor.Brightness = 0
+        .Transparency = 0
+        .Solid
+    End With
+    
+    ActiveChart.Axes(xlCategory).AxisTitle.Select
+    ActiveChart.Axes(xlCategory, xlPrimary).AxisTitle.Text = "Station (Unit)"
+    Selection.Format.TextFrame2.TextRange.Characters.Text = "Station (Unit)"
+    With Selection.Format.TextFrame2.TextRange.Characters(1, 14).ParagraphFormat
+        .TextDirection = msoTextDirectionLeftToRight
+        .Alignment = msoAlignCenter
+    End With
+    With Selection.Format.TextFrame2.TextRange.Characters(1, 14).Font
+        .BaselineOffset = 0
+        .Bold = msoFalse
+        .NameComplexScript = "+mn-cs"
+        .NameFarEast = "+mn-ea"
+        .Fill.Visible = msoTrue
+        .Fill.ForeColor.RGB = RGB(89, 89, 89)
+        .Fill.Transparency = 0
+        .Fill.Solid
+        .Size = 10
+        .Italic = msoFalse
+        .Kerning = 12
+        .Name = "+mn-lt"
+        .UnderlineStyle = msoNoUnderline
+        .Strike = msoNoStrike
+    End With
+    
+    With Selection.Format.TextFrame2.TextRange.Font.Fill
+        .Visible = msoTrue
+        .ForeColor.ObjectThemeColor = msoThemeColorText1
+        .ForeColor.TintAndShade = 0
+        .ForeColor.Brightness = 0
+        .Transparency = 0
+        .Solid
+    End With
+    
+         Set RngToCover = ws2.Range("A14:Z40")
+         Set ChtOb = ActiveChart.Parent
+         ChtOb.Height = RngToCover.Height ' resize
+         ChtOb.Width = RngToCover.Width   ' resize
+         ChtOb.Top = RngToCover.Top       ' reposition
+         ChtOb.Left = RngToCover.Left     ' reposition
+         
+    ActiveChart.SetElement (msoElementDataLabelShow)
+    ActiveChart.FullSeriesCollection(2).DataLabels.Select
+    Selection.Delete
+    ActiveChart.FullSeriesCollection(5).DataLabels.Select
+    Selection.Delete
+    ActiveChart.FullSeriesCollection(3).DataLabels.Select
+    Selection.Delete
+    ActiveChart.FullSeriesCollection(1).DataLabels.Select
+    Selection.Delete
+    ActiveChart.FullSeriesCollection(4).DataLabels.Select
+    With Selection.Format.TextFrame2.TextRange.Font.Fill
+        .Visible = msoTrue
+        .ForeColor.RGB = RGB(255, 255, 255)
+        .Transparency = 0
+        .Solid
+    End With
+
+    ActiveChart.Axes(xlCategory).Select
+    With Selection.Format.Line
+        .Visible = msoTrue
+        .ForeColor.RGB = RGB(0, 32, 96)
+        .Transparency = 0
+    End With
+    With Selection.Format.Fill
+        .Visible = msoTrue
+        .ForeColor.ObjectThemeColor = msoThemeColorBackground1
+        .ForeColor.TintAndShade = 0
+        .ForeColor.Brightness = 0
+        .Transparency = 0
+        .Solid
+    End With
+    
+    ActiveChart.PlotArea.Select
+    With Selection.Format.Fill
+        .Visible = msoTrue
+        .ForeColor.ObjectThemeColor = msoThemeColorAccent4
+        .ForeColor.TintAndShade = 0
+        .ForeColor.RGB = RGB(255, 255, 204)
+        .Transparency = 0
+        .Solid
+    End With
+    
+    With ActiveSheet.Shapes("Chart 1").Fill
+        .Visible = msoTrue
+        .ForeColor.ObjectThemeColor = msoThemeColorAccent6
+        .ForeColor.TintAndShade = 0
+        .ForeColor.RGB = RGB(220, 255, 204)
+        .Transparency = 0
+        .Solid
+    End With
+    
+    With ActiveSheet.Shapes("Chart 1").Line
+        .Visible = msoTrue
+        .ForeColor.ObjectThemeColor = msoThemeColorText1
+        .ForeColor.TintAndShade = 0
+        .ForeColor.Brightness = 0
+        .Transparency = 0
+    End With
+
+    ActiveChart.Legend.Select
+    With Selection.Format.TextFrame2.TextRange.Font.Fill
+        .Visible = msoTrue
+        .ForeColor.ObjectThemeColor = msoThemeColorText1
+        .ForeColor.TintAndShade = 0
+        .ForeColor.Brightness = 0
+        .Transparency = 0
+        .Solid
+    End With
+    
+    ws2.Range("G1:K2").Select
+    Selection.Merge
+    ActiveCell.FormulaR1C1 = "Engine Inspection Overview"
+    With Selection
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .WrapText = False
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = True
+    End With
+    With Selection.Font
+        .Name = "Calibri"
+        .Size = 20
+        .Strikethrough = False
+        .Superscript = False
+        .Subscript = False
+        .OutlineFont = False
+        .Shadow = False
+        .Underline = xlUnderlineStyleNone
+        .ThemeColor = xlThemeColorLight1
+        .TintAndShade = 0
+        .ThemeFont = xlThemeFontMinor
+    End With
+    With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .ThemeColor = xlThemeColorAccent3
+        .TintAndShade = 0.799981688894314
+        .PatternTintAndShade = 0
+    End With
+    Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+    With Selection.Borders(xlEdgeLeft)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeTop)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeBottom)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeRight)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlInsideVertical)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlInsideHorizontal)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    
+    t = Now()
+    ws2.Cells(1, 2).Value = t
+    
+    ws2.UsedRange.Columns.AutoFit
+    
+End Sub
